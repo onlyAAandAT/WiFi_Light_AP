@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="./favicon.ico" sizes="16x16">
+    <title>嘉然给你开关灯</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-weight: bolder;
+        }
+
+        body {
+            /* 100%窗口高度 */
+            min-height: 100vh;
+            display: flex;
+            /* 弹性布局 水平+垂直居中 */
+            justify-content: center;
+            align-items: center;
+            background-color: #161626;
+        }
+
+        /* 背景装饰 */
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            /* 渐变背景 */
+            background: linear-gradient(#2193b0, #6dd5ed);
+            /* 将元素剪切为一个圆形，30%表示圆的直径 right表示圆心位置 */
+            clip-path: circle(30% at right 70%);
+        }
+
+        body::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            /* 渐变背景 */
+            background: linear-gradient(#ee9ca7, #ffdde1);
+            /* 将元素剪切为一个圆形，30%表示圆的直径 right表示圆心位置 */
+            clip-path: circle(20% at 10% 10%);
+        }
+
+        .container {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            z-index: 1;
+        }
+
+        .container .card {
+            position: relative;
+            width: 360px;
+            height: 640px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            /* 阴影 */
+            box-shadow: 20px 20px 50px rgba(0, 0, 0, 0.5);
+            /* 溢出隐藏 */
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.5);
+            border-left: 1px solid rgba(255, 255, 255, 0.5);
+            /* 背景模糊 */
+            backdrop-filter: blur(5px);
+        }
+
+        .container .card .content {
+
+            text-align: center;
+
+            /* 默认下移+隐藏 */
+            color: rgba(255, 255, 255, 0.05);
+        }
+
+        .img {
+            position: absolute;
+            /* top: 0; */
+            /* left: 0; */
+            bottom: 0;
+            opacity: 0.3;
+        }
+
+        .img img {
+
+            width: 200px;
+            height: 200px;
+        }
+
+        .container .card .content h1 {
+            position: absolute;
+            top: -91px;
+            right: 148px;
+            font-size: 300px;
+            color: rgba(255, 255, 255, 0.05);
+        }
+
+        .container .card .content h2 {
+            position: absolute;
+            transform: rotate(-90deg);
+            top: 32px;
+            right: -28px;
+            font-size: 120px;
+            color: rgba(255, 255, 255, 0.05);
+        }
+
+        .container .card .content h3 {
+            position: relative;
+            font-size: 28px;
+            color: #fff;
+        }
+
+        .container .card .content p {
+            font-size: 16px;
+            color: #fff;
+            font-weight: 300;
+            margin: 10px 0 15px 0;
+        }
+
+        .container .card .content button {
+            position: relative;
+            display: inline-block;
+            padding: 8px 20px;
+            margin-top: 15px;
+            background-color: #fff;
+            color: #000;
+            border-radius: 20px;
+            border: none;
+            text-decoration: none;
+            font-weight: 500;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        button:active {
+            top: 2px;
+            /* 向下偏移2px */
+            opacity: 0.7;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, .3);
+        }
+
+        button:focus {
+            outline: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="img">
+                <img src="./img/jiaran.png" alt="">
+            </div>
+            <div class="content">
+                <p>灯开关状态 : <span id="LightState">正在连接···</span><br></p>
+                <h1>D</h1>
+                <h2>iana</h2>
+                <h3>嘉然给你开关灯</h3>
+                <p>
+                    B站关注：嘉然今天吃什么
+                </p>
+                <div class="btn">
+                    <button onclick="sendData(1)">开灯</button>
+                    <button onclick="sendData(0)">关灯</button><br>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+<script>
+        function sendData(light) {
+
+            var xhr = new XMLHttpRequest();
+            xhr.open("GET", "setLight?LightState=" + light, true);
+            xhr.send();
+            xhr.onreadystatechange = function () {
+                if (this.readyState === 4) {
+                    if (xhr.status >= 200 && xhr.status < 300) {
+                        document.getElementById("LightState").innerHTML = this.responseText;
+                    } else {
+                        alert("嘉然好像不在哦，不能帮你开关灯")
+                    }
+                }
+            };
+        }
+
+        setInterval(function () {
+            getData();
+        }, 2000); //2000mSeconds update rate
+
+
+        function getData() {
+            var xhr = new XMLHttpRequest();
+            xhr.open("GET", "readLight", true);
+            xhr.send();
+            xhr.onreadystatechange = function () {
+                if (this.readyState == 4 && this.status == 200) {
+                    document.getElementById("LightState").innerHTML = this.responseText;
+                } else {
+                    document.getElementById("LightState").innerHTML = "正在连接···";
+                }
+            };
+        }
+    
+
+
+</script>
+
+</html>
